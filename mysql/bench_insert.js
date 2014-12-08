@@ -7,7 +7,7 @@ var multiline = require('multiline');
 var util = require('util');
 var async = require('async');
 
-var password = 'xxxxx';
+var password = 'xxx';
 var total_count = 1000;
 var procs = 1;
 var count = total_count/procs;
@@ -67,12 +67,12 @@ function test_insert(size,cb){
 	var t1 = new Date;
 
 	var buf = new Buffer(size);
+	var sql = mysql.format(
+			'insert into dt(data) values(?)',
+			[buf.toString()]);
 
 	var j = 0;
 	for(var i=0;i<count;i++){
-		var sql = mysql.format(
-				'insert into dt(data) values(?)',
-				[buf.toString()]);
 		connection.query(sql,function(err,result){
 			if(err){
 				console.log('err:',err);
@@ -102,10 +102,13 @@ if(cluster.isWorker){
 			test_insert(1024,cb);
 		},
 		function(cb){
-			test_insert(10240,cb);
+			test_insert(1024*10,cb);
 		},
 		function(cb){
-			test_insert(102400,cb);
+			test_insert(1024*100,cb);
+		},
+		function(cb){
+			test_insert(1024*1000,cb);
 		}
 	],function(err,results){
 		if(err){
